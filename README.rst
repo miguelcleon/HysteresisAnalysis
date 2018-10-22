@@ -1,0 +1,2 @@
+Calculate river discharge response hysteresis loop statistics and hysteresis indices (HI) are calculated for normalized discharge and response. With interpall=True (which is the
+default)HI values are calculated for 2% intervals of discharge similar to what is described in Vaughan et al., 2017 (https://www.doi.org/10.1002/2017WR020491)

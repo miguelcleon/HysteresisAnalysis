@@ -3,7 +3,10 @@ import pandas as pd
 import math
 import numpy
 
-def interpolateMissingHI(hystIndex,raisingfalling,responseanddis,interval,lastinterval,i,maxWidth,closestopposite=None):
+def interpolateHIValues(hystIndex,raisingfalling,responseanddis,interval,lastinterval,i,maxWidth,closestopposite=None):
+    # Calculate river discharge response hysteresis Index value for an interval. For more details see hysteresisMetrics
+    # function. This is a helper function for hysteresisMetrics.
+
     # find discharge value closest to interval and last interval
     # if raisingfalling == 'raising':
     closestunderrow = None
@@ -14,15 +17,6 @@ def interpolateMissingHI(hystIndex,raisingfalling,responseanddis,interval,lastin
     closestunderfallingrow = None
     closestunderraisingrow = None
     lastclosestunderrow = None
-    print('length response and dis')
-
-    print(len(responseanddis))
-    print('length raising and discharge')
-    print(len(raisingfalling))
-    print(raisingfalling)
-    print('last interval')
-    print(lastinterval)
-    #rescale interval
 
     x = 0
     x0 = 0
@@ -51,11 +45,9 @@ def interpolateMissingHI(hystIndex,raisingfalling,responseanddis,interval,lastin
                 if row['datavaluedis'] < lastinterval: # This SHOULD probably be enforced
                         # print(row)
                     if raisingfalling == 'falling' and not math.isnan(row['datavaluefalling']):
-                        # print('HERHEHEHE')
                         closestunderrow = row
                     elif raisingfalling == 'raising' and not math.isnan(row['datavalueraising']):
                         closestunderrow = row
-
             else:
                 if row['datavaluedis'] < lastinterval and row['datavaluedis'] > closestunderrow['datavaluedis']:
                     if raisingfalling == 'falling' and not math.isnan(row['datavaluefalling']):
@@ -92,17 +84,12 @@ def interpolateMissingHI(hystIndex,raisingfalling,responseanddis,interval,lastin
                             closestoverrow = row
             if raisingfalling == 'raising and falling':
                 if closestoverfallingrow is not None:
-                    # print(closestoverfallingrow['datavaluedis'])
-                    # print(closestoverfallingrow['datavalue'])
                     if row['datavaluedis'] >= interval and row['datavaluedis'] < closestoverfallingrow['datavaluedis']:
                         if not math.isnan(row['datavalue']):
                             closestoverfallingrow = row
                 if closestoverraisingrow is not None:
-                   #  print(closestoverraisingrow['datavaluedis'])
-                    # print(closestoverraisingrow['datavalueraising'])
                     if row['datavaluedis'] >= interval and row['datavaluedis'] < closestoverraisingrow['datavaluedis']:
                         if not math.isnan(row['datavalueraising']):
-                            print('HERE@@@@&')
                             closestoverraisingrow = row
         if closestunderrow is not None and closestoverrow is not None:
             if raisingfalling == 'raising' :
@@ -113,10 +100,6 @@ def interpolateMissingHI(hystIndex,raisingfalling,responseanddis,interval,lastin
                 y0 = closestunderrow['datavalueraising']
                 y = closestoverrow['datavalueraising']
             elif raisingfalling == 'falling':
-                print(closestunderrow['datavaluedis'])
-                print(closestoverrow['datavaluedis'])
-                print(closestunderrow['datavaluefalling'])
-                print(closestoverrow['datavaluefalling'])
                 if (math.isnan(row['datavaluedis']) or math.isnan(row['datavaluefalling'])):
                     continue
                 x0 = closestunderrow['datavaluedis']
@@ -136,11 +119,9 @@ def interpolateMissingHI(hystIndex,raisingfalling,responseanddis,interval,lastin
                     xf0 = closestunderfallingrow['datavaluedis']
 
             if closestoverraisingrow is not None:
-                # print(closestoverraisingrow['datavaluedis'])
                 if not math.isnan(closestoverraisingrow['datavaluedis']):
                     xr = closestoverraisingrow['datavaluedis']
             if closestoverfallingrow is not None:
-                # print(closestoverfallingrow['datavaluedis'])
                 if not math.isnan(closestoverfallingrow['datavaluedis']):
                     xf = closestoverfallingrow['datavaluedis']
 
@@ -153,11 +134,6 @@ def interpolateMissingHI(hystIndex,raisingfalling,responseanddis,interval,lastin
                 print(closestunderfallingrow['datavalue'])
                 if not math.isnan(closestunderfallingrow['datavalue']):
                     yf0 = closestunderfallingrow['datavalue']  # this is falling limb; it didn't receive a suffix in this case
-                #if not math.isnan(closestunderrow['datavalue']):
-                #    yf = closestunderrow['datavalue']
-
-            # print('over!!!')
-            # print(interval)
             if closestoverraisingrow is not None:
                 if not math.isnan(closestoverraisingrow['datavalueraising']):
                     yr = closestoverraisingrow['datavalueraising']
@@ -195,16 +171,12 @@ def interpolateMissingHI(hystIndex,raisingfalling,responseanddis,interval,lastin
         xrmidpoint = (xr + xr0) / 2
         br = yrmidpoint - mr * xrmidpoint
         estimatedresponseraising = mr * xrmidpoint + br
-        print('midpoint y: ' + str(yrmidpoint))
-        print('estimatedresponseraising: ' + str(estimatedresponseraising))
         mf = (yf - yf0) / (xf - xf0)
         yfmidpoint = (yf + yf0) / 2
         xfmidpoint = (xf + xf0) / 2
         bf = yfmidpoint - mf * xfmidpoint
         estimatedresponsefalling = mf * xfmidpoint + bf
         HI = estimatedresponseraising - estimatedresponsefalling
-        # print('mr: '+ str(mr))
-        # print('br: ' + str(br))
     #closestopposite
     if raisingfalling == 'raising':
         HI = estimatedresponse - closestopposite['datavaluefalling']
@@ -213,8 +185,6 @@ def interpolateMissingHI(hystIndex,raisingfalling,responseanddis,interval,lastin
         HI = closestopposite['datavalueraising'] - estimatedresponse
 
     hystIndex['Interpolated HI for ' + str(i * 2) + '% discharge'] = HI
-    # else:
-    #     hystIndex['Interpolated HI for ' + str(i * 2) + '% discharge'] = 'no values present'
     if maxWidth and HI:
         if abs(HI) > abs(maxWidth):
             maxWidth = HI
@@ -223,14 +193,39 @@ def interpolateMissingHI(hystIndex,raisingfalling,responseanddis,interval,lastin
 
 
     return hystIndex,maxWidth
-# discharge_time_spacing amount of time between discharge measurements
-# time_spacing_units minutes or hours default to minutes
+
+
 def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_spacing, debug=False, interpall=True,
-                      discharge_time_spacing_units='minutes', response_time_spacing_units='minutes', ):
+                      discharge_time_spacing_units='minutes', response_time_spacing_units='minutes', discharge_units='CFS'):
+    # Calculate river discharge response hysteresis loop statistics and hysteresis indices (HI) are calculated for
+    # normalized discharge and response. With interpall=True (which is the default)HI values are calculated for 2%
+    # intervals of discharge similar to what is described in Vaughan et al., 2017
+    # (https://www.doi.org/10.1002/2017WR020491)
+    # Args:
+    #     discharge (pandas dataframe): a dataframe containing a datetime column named 'valuedatetime',  and discharge
+    #                                   values in a column 'datavalue'
+    #     response (pandas dataframe): a dataframe containing a datetime column named 'valuedatetime',  and a response
+    #                                  variable with values in a column 'datavalue'
+    #     discharge_time_spacing (int): amount of time between discharge measurements
+    #     response_time_spacing (int): amount of time between response measurements
+    #     debug (boolean): indicate if you want debugging print statements
+    #     interpall (boolean): indicate if you would like all HI values to be interpolated to 2% intervals of discharge.
+    #                          otherwise 2% intervals will pick the closest raising and falling limb response values to
+    #                          each 2% interval (but will still interpolate the values if a response value does not
+    #                          exist values will be interpolated.
+    #      discharge_time_spacing_units (string): this should be 'minutes' or 'hours' and indicates the units for
+    #                                             discharge_time_spacing
+    #      response_time_spacing_units (string): this should be 'minutes' or 'hours' and indicates the units for
+    #                                             response_time_spacing_units
+    #      discharge_units (string): this is just included in the returned dictionary.
+    #      Returns:
+    #             hystdict (dictionary): A python dictionary containing the calculated statistics and indices.
     hystdict = {}
     HIsandInterp = []
+    #sort values by date
+    discharge = discharge.sort_values(by=['valuedatetime'])
+    response = response.sort_values(by=['valuedatetime'])
     #normalize times for discharge
-
     dtimeagg = discharge_time_spacing # dischargetsr.intendedtimespacing
     dtimeaggunit = discharge_time_spacing_units # dischargetsr.intendedtimespacingunitsid.unitsname
     dischargepdf = discharge # pd.DataFrame(list(discharge.values()))
@@ -252,7 +247,7 @@ def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_
     maxdischargerow = dischargepdf.loc[dischargepdf['datavalue'].idxmax()] # discharge.aggregate(Max('datavalue'))
     maxdischarge = maxdischargerow['datavalue']
     hystdict['Peak Q'] = maxdischarge
-    hystdict['discharge_units'] = str(discharge[0].resultid.resultid.unitsid.unitsabbreviation)
+    hystdict['discharge_units'] = discharge_units # str(discharge[0].resultid.resultid.unitsid.unitsabbreviation)
     # print('units!!')
     # print(discharge[0].resultid.resultid.unitsid.unitsabbreviation)
     hystdict['Normalized slope of response'] = None
@@ -269,16 +264,20 @@ def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_
     hystdict["HI_standard_deviation_with_Interp"] = None
     hystdict['HI_count_and_interp'] = None
     if maxdischarge:
-        # print(maxdischarge['datavalue__max'])
-        # normalize discharge
-        maxdischargerecord = discharge.order_by('-datavalue')[0]# .get(datavalue=float(maxdischarge['datavalue__max']))
-        mindischargerecord = discharge.order_by('datavalue')[0]
-        # dischargenorm = []
-       #  dischargepdf = pd.DataFrame(list(discharge.values()))
-        dischargepdf['datavalue'] = (dischargepdf['datavalue']- mindischargerecord.datavalue)/(maxdischargerecord.datavalue - mindischargerecord.datavalue)
-        # print(dischargepdf['datavalue'])
+        maxdischargerecord = dischargepdf.loc[dischargepdf['datavalue'].idxmax()]
+        mindischargerecord = dischargepdf.loc[dischargepdf['datavalue'].idxmin()]
+        #maxdischargerecord = discharge.order_by('-datavalue')[
+        #    0]  # .get(datavalue=float(maxdischarge['datavalue__max']))
+        #mindischargerecord = discharge.order_by('datavalue')[0]
+        # dischargepdf = dischargepdf.sort_values(by=['valuedatetime'])
+        dischargepdf['datavalue'] = (dischargepdf['datavalue'] - mindischargerecord['datavalue']) / (
+                maxdischargerecord['datavalue'] - mindischargerecord['datavalue'])
+        if debug:
+            print('normalized discharge head')
+            print(dischargepdf.head())
         maxdisrow = dischargepdf.loc[dischargepdf['datavalue'].idxmax()]
         mindisrow = dischargepdf.loc[dischargepdf['datavalue'].idxmin()]
+
         maxnormdischargerecord = maxdisrow['datavalue']
         maxnormdischargedate = maxdisrow['valuedatetime']
         minnormdischargerecord = mindisrow['datavalue']
@@ -295,8 +294,6 @@ def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_
         # responsetsr = Timeseriesresults.objects.filter(resultid=response[0].resultid.resultid).get()
         timeagg =response_time_spacing # responsetsr.intendedtimespacing
         timeaggunit = response_time_spacing_units # responsetsr.intendedtimespacingunitsid.unitsname
-        # print('timeaggunit')
-        # print(timeaggunit)
         if 'minute' in timeaggunit or 'Minutes' in timeaggunit:
             # print(responsenormpdf['valuedatetime'])
 
@@ -404,7 +401,7 @@ def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_
                 if interpall:
                     countMissingBoth += 1
                     premaxWidth = maxWidth
-                    hystIndex,maxWidth = interpolateMissingHI(hystIndex,'raising and falling', dischargeriaisingandfallingresponseall,interval,lastinterval,i,maxWidth)
+                    hystIndex,maxWidth = interpolateHIValues(hystIndex,'raising and falling', dischargeriaisingandfallingresponseall,interval,lastinterval,i,maxWidth)
                 elif not closestraisingrow is None and not closestfallingrow is None:
 
                     tmp = closestraisingrow['datavalueraising'] - closestfallingrow['datavaluefalling']
@@ -419,15 +416,15 @@ def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_
                 elif closestfallingrow is None and not closestraisingrow is None:
                     countMissingFalling += 1
                     premaxWidth = maxWidth
-                    hystIndex,maxWidth = interpolateMissingHI(hystIndex,'falling',dischargeandfallingresponseall,interval,lastinterval,i,maxWidth,closestraisingrow)
+                    hystIndex,maxWidth = interpolateHIValues(hystIndex,'falling',dischargeandfallingresponseall,interval,lastinterval,i,maxWidth,closestraisingrow)
                 elif closestraisingrow is None and not closestfallingrow is None:
                     countMissingRaising += 1
                     premaxWidth = maxWidth
-                    hystIndex,maxWidth = interpolateMissingHI(hystIndex,'raising',dischargeandraisingresponseall,interval,lastinterval,i,maxWidth,closestfallingrow)
+                    hystIndex,maxWidth = interpolateHIValues(hystIndex,'raising',dischargeandraisingresponseall,interval,lastinterval,i,maxWidth,closestfallingrow)
                 else:
                     countMissingBoth += 1
                     premaxWidth = maxWidth
-                    hystIndex,maxWidth = interpolateMissingHI(hystIndex,'raising and falling', dischargeriaisingandfallingresponseall,interval,lastinterval,i,maxWidth)
+                    hystIndex,maxWidth = interpolateHIValues(hystIndex,'raising and falling', dischargeriaisingandfallingresponseall,interval,lastinterval,i,maxWidth)
                     # hystdict = interpolateMissingHI(hystdict,'raising', dischargeandraisingresponseall)
                 if premaxWidth != maxWidth:
                     hystdict['interpolated Max width of response'] = maxWidth
@@ -446,19 +443,11 @@ def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_
             HIs = []
             HIsandInterp = []
             for key, values in hystIndex.items():
-                print('key!!!')
-                print(key)
                 if not 'Interpolated' in key:
                     if values:
                         HIs.append(values)
-                    # print('here here')
-                    # print(values)
-                #else:
-                print(values)
                 if values:
                     HIsandInterp.append(values)
-                print('interper val')
-                print(values)
                 if 'Hysteresis_Index' in hystdict:
                     if values:
                         hystdict['Hysteresis_Index'][key] = values
@@ -475,22 +464,10 @@ def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_
             hystStdInterp = float('NaN')
             hystAvgInterp = numpy.mean(HIsandInterp) #sum(values) / float(len(values))
             hystStdInterp = numpy.std(HIsandInterp)
-
-            print(HIsandInterp)
             hystdict["HI_count_and_interp"] = str(len(HIsandInterp))
             hystdict["HI_mean"] = str(hystAvg)
             hystdict["HI_standard_deviation"] = str(hystStd)
 
             hystdict["HI_mean_with_Interp"] = str(hystAvgInterp)
             hystdict["HI_standard_deviation_with_Interp"] = str(hystStdInterp)
-
-        if HIsandInterp:
-            if len(HIsandInterp) < 50:
-                print('hystdict asdf')
-                print('HIs and Interp count: ' + str(len(HIsandInterp)))
-                print('max date discharge: ' + str(maxnormdischargedate))
-                print('max response date: ' +str(maxresponse['valuedatetime']))
-                # print('max response id: ' + str(maxresponse.resultid.resultid.resultid))
-                for key, value in hystdict.items():
-                    print(str(key) + ': ' + str(value))
     return hystdict
