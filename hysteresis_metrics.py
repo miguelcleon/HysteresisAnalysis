@@ -197,7 +197,7 @@ def interpolateHIValues(hystIndex,raisingfalling,responseanddis,interval,lastint
 
 def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_spacing, debug=False, interpall=True,
                       discharge_time_spacing_units='minutes', response_time_spacing_units='minutes', discharge_units='CFS'):
-    # Calculate river discharge response hysteresis loop statistics and hysteresis indices (HI) are calculated for
+    # River discharge response hysteresis loop statistics and hysteresis indices (HI) are calculated for
     # normalized discharge and response. With interpall=True (which is the default)HI values are calculated for 2%
     # intervals of discharge similar to what is described in Vaughan et al., 2017
     # (https://www.doi.org/10.1002/2017WR020491)
