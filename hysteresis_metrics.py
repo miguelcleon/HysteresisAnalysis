@@ -432,9 +432,11 @@ def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_
                     hystdict['Max width of response'] = maxWidth
                 # print('Max width ' + str(maxWidth))
                 # print(hystIndex)
-            if lastRaisingResponse > 0 and firstRaisingResponse > 0:
-                hystdict['Normalized slope of response'] = (
-                            lastRaisingResponse - firstRaisingResponse)  # / (lastRaisingDis - firstRaisingDis)
+            raisingdf = raisinglimbresponse.sort_values(by='valuedatetime')
+            firstraisingresponse = raisingdf.head(1).iloc[0]['datavalue']
+            lastraisingresponse = raisingdf.tail(1).iloc[0]['datavalue']
+
+            hystdict['Normalized slope of response'] = lastraisingresponse - firstraisingresponse  # / (lastRaisingDis - firstRaisingDis)
 
             hystdict["HI_count"] = countHIs
             hystdict["HI values missing due to no raising limb measurement"] = countMissingRaising
