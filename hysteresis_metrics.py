@@ -110,7 +110,7 @@ def interpolateHIValues(hystIndex,raisingfalling,responseanddis,interval,lastint
             #if math.isnan(row['datavaluedis']): # or math.isnan(row['datavalueraising'])or math.isnan(row['datavalue'])
             #    continue
             # x0 = closestunderrow['datavaluedis']
-            print('NAN????')
+            # print('NAN????')
             if closestunderraisingrow is not None:
                 if not math.isnan(closestunderraisingrow['datavaluedis']):
                     xr0 = closestunderraisingrow['datavaluedis']
@@ -126,12 +126,12 @@ def interpolateHIValues(hystIndex,raisingfalling,responseanddis,interval,lastint
                     xf = closestoverfallingrow['datavaluedis']
 
             if closestunderraisingrow is not None:
-                print(closestunderraisingrow['datavalueraising'])
+                # print(closestunderraisingrow['datavalueraising'])
                 if not math.isnan(closestunderraisingrow['datavalueraising']): # or math.isnan(row['datavalueraising'])or math.isnan(row['datavalue'])
                     yr0 = closestunderraisingrow['datavalueraising']
 
             if not closestunderfallingrow is None:
-                print(closestunderfallingrow['datavalue'])
+                # print(closestunderfallingrow['datavalue'])
                 if not math.isnan(closestunderfallingrow['datavalue']):
                     yf0 = closestunderfallingrow['datavalue']  # this is falling limb; it didn't receive a suffix in this case
             if closestoverraisingrow is not None:
@@ -160,10 +160,10 @@ def interpolateHIValues(hystIndex,raisingfalling,responseanddis,interval,lastint
         belowlastinterval = responseanddis[responseanddis['datavaluedis'] < lastinterval]
         fallingaboveinterval = responseanddis[responseanddis['datavaluedis'] > interval]
         fallingaboveintervalnonan = aboveinterval[~aboveinterval['datavalue'].isnull()]
-        print('yf0: ' + str(yf0))
-        print('yr: ' + str(yr))
-        print('yf: ' + str(yf))
-        print('yr0: ' + str(yr0))
+        # print('yf0: ' + str(yf0))
+        # print('yr: ' + str(yr))
+        # print('yf: ' + str(yf))
+        # print('yr0: ' + str(yr0))
 
         # print(closestoverrow)
         mr = (yr - yr0) / (xr - xr0)

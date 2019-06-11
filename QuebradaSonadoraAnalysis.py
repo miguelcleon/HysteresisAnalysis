@@ -16,7 +16,23 @@ hysdict = hysteresisMetrics(SonadoraDischarge,SonadoraSP, timespacing, timespaci
                       discharge_time_spacing_units='minutes', response_time_spacing_units='minutes', )
 
 
+
+
+SonadoraDischargeFile = open('SonadoraDischarge8.p', 'rb')
+SonadoraSPFile = open('SonadoraSpecificConductance8.p', 'rb')
+SonadoraTurbidityFile = open('SonadoraTurbidity8.p', 'rb')
+SonadoraDischarge = pickle.load(SonadoraDischargeFile)
+SonadoraSP = pickle.load(SonadoraSPFile)
+SonadoraTurbidity = pickle.load(SonadoraTurbidityFile)
+print(SonadoraSP.head())
+SonadoraDischarge = SonadoraDischarge.drop(columns=['censorcodecv_id', 'qualitycodecv_id'])
+SonadoraSP = SonadoraSP.drop(columns=['censorcodecv_id', 'qualitycodecv_id'])
+timespacing = 15 # 15 minutes between records
+hysdict2 = hysteresisMetrics(SonadoraDischarge,SonadoraSP, timespacing, timespacing, debug=False, interpall=True,
+                      discharge_time_spacing_units='minutes', response_time_spacing_units='minutes', )
+
 print(hysdict)
+print(hysdict2)
 
 #hysdictTurbidity = hysteresisMetrics(SonadoraDischarge,SonadoraTurbidity, timespacing, timespacing, debug=False, interpall=True,
 #                      discharge_time_spacing_units='minutes', response_time_spacing_units='minutes', )
