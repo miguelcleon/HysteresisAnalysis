@@ -242,8 +242,7 @@ def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_
         dischargepdf['valuedatetime'] = dischargepdf['valuedatetime'].apply(
             lambda dt: datetime(dt.year, dt.month, dt.day, dt.hour,
                                 int((dtimeagg * round((float(dt.minute) + float(
-                                    dt.second) / 60) / dtimeagg)))))
-
+                                    dt.second) / 60)) / dtimeagg))))
     maxdischargerow = dischargepdf.loc[dischargepdf['datavalue'].idxmax()] # discharge.aggregate(Max('datavalue'))
     maxdischarge = maxdischargerow['datavalue']
     hystdict['Peak Q'] = maxdischarge
@@ -298,13 +297,13 @@ def hysteresisMetrics(discharge,response, discharge_time_spacing, response_time_
             # print(responsenormpdf['valuedatetime'])
 
             responsenormpdf['valuedatetime'] = responsenormpdf['valuedatetime'].apply(lambda dt: datetime(dt.year, dt.month, dt.day, dt.hour,
-                                                                           int(timeagg * round((float(dt.minute) + float(
-                                                                               dt.second) / 60) / timeagg))))
+                                int((dtimeagg * round((float(dt.minute) + float(
+                                    dt.second) / 60)) / dtimeagg))))
         if 'hour' in timeaggunit:
             timeagg = timeagg * 60
             responsenormpdf['valuedatetime'] = responsenormpdf['valuedatetime'].apply(lambda dt: datetime(dt.year, dt.month, dt.day, dt.hour,
-                                                                           int(timeagg * round((float(dt.minute) + float(
-                                                                               dt.second) / 60) / timeagg))))
+                                int((dtimeagg * round((float(dt.minute) + float(
+                                    dt.second) / 60)) / dtimeagg))))
 
         raisinglimbresponse = responsenormpdf[(responsenormpdf['valuedatetime'] <= maxnormdischargedate)] # response.filter(valuedatetime__lte=maxdischargerecord.valuedatetime)
         fallinglimbresponse = responsenormpdf[(responsenormpdf['valuedatetime'] > maxnormdischargedate)]  # response.filter(valuedatetime__gt=maxdischargerecord.valuedatetime)
